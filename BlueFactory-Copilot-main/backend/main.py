@@ -10,8 +10,10 @@ app = FastAPI()
 ZONES = {}
 
 fleet = []
-
 obstacles = []
+
+# Global Overrides
+SYSTEM_STATE = { "global_estop": False, "global_pause": False }
 
 # --- CRASH-PROOF A* PATHFINDING ---
 def calculate_path(start_x, start_y, goal_x, goal_y, extra_obstacles=None):
@@ -110,8 +112,65 @@ async def websocket_endpoint(websocket: WebSocket):
                         "id": message.get("name"), "x": message.get("x"), "y": message.get("y"),
                         "target_x": message.get("x"), "target_y": message.get("y"), "target_zone": "Idle",
                         "battery": 100.0, "color": new_color, "motor_temp": 45.0, "status": "IDLE",
-                        "path": [], "load_kg": 0, "speed_kmh": 0
+                        "path": [], "load_kg": message.get("load_kg", 0), "speed_kmh": 0,
+                        "model": message.get("model", "BR-Basic-060"),
+                        "mission_queue": [], "current_leg": None
                     })
+                    
+                elif msg_type == "remove_agv":
+                    agv_id = message.get("agv_id")
+                    for a in fleet:
+                        if a["id"] == agv_id:
+                            fleet.remove(a)
+                            break
+                            
+                elif msg_type == "edit_agv":
+                    agv_id = message.get("agv_id")
+                    for a in fleet:
+                        if a["id"] == agv_id:
+                            if "new_name" in message and message["new_name"]: a["id"] = message.get("new_name")
+                            if "load_kg" in message: a["load_kg"] = message.get("load_kg")
+                            if "x" in message: a["x"], a["target_x"] = message.get("x"), message.get("x")
+                            if "y" in message: a["y"], a["target_y"] = message.get("y"), message.get("y")
+                            a["target_zone"] = "Idle"
+                            a["path"] = []
+                            a["mission_queue"] = []
+                            a["status"] = "IDLE"
+                            
+                elif msg_type == "multi_leg_mission":
+                    agv_id = message.get("agv_id")
+                    pickup = message.get("pickup_zone")
+                    drop = message.get("drop_zone")
+                    load = message.get("load_kg", 0)
+                    priority = message.get("priority", "LOW")
+                    custom_path_pts = message.get("custom_path", None)
+                    for a in fleet:
+                        if a["id"] == agv_id:
+                            a["mission_queue"] = [
+                                {"type": "PICKUP", "zone": pickup, "load": load, "custom_path": custom_path_pts, "priority": priority},
+                                {"type": "DROP", "zone": drop, "load": 0, "priority": priority}
+                            ]
+                            a["status"] = "ASSIGNED"
+                            a["priority"] = priority
+                            a["path"] = []
+                            
+                elif msg_type == "global_estop":
+                    SYSTEM_STATE["global_estop"] = message.get("state", False)
+                    for agv in fleet: 
+                        if SYSTEM_STATE["global_estop"]:
+                             if agv["status"] not in ["IDLE", "CHARGING"]: agv["status"] = "E-STOP"
+                        else:
+                             if agv["status"] == "E-STOP": agv["status"] = "IDLE"
+                
+                elif msg_type == "pause_all":
+                    SYSTEM_STATE["global_pause"] = message.get("state", False)
+                    
+                elif msg_type == "stop_selected_agv":
+                    agv_id = message.get("agv_id")
+                    state = message.get("state", True)
+                    for a in fleet:
+                        if (not agv_id) or (a["id"] == agv_id):
+                            a["is_stopped"] = state
                     
                 elif msg_type == "add_obstacle":
                     obstacles.append({"x": message.get("x"), "y": message.get("y")})
@@ -150,14 +209,50 @@ async def websocket_endpoint(websocket: WebSocket):
             try:
                 for i, agv in enumerate(fleet):
                     agv["speed_kmh"] = max(2.0, 15.0 - (agv["load_kg"] * 0.01)) 
-                    map_speed = agv["speed_kmh"] * 0.06 
+                    map_speed = agv["speed_kmh"] * 0.02 # Slower visual scaling factor for dashboard pathing
                     
-                    if len(agv["path"]) == 0 and ("charg" in agv["target_zone"].lower() or "power" in agv["target_zone"].lower()):
+                    if len(agv.get("path", [])) == 0 and ("charg" in agv["target_zone"].lower() or "power" in agv["target_zone"].lower()):
                         agv["status"] = "CHARGING"
-                        agv["battery"] = min(100.0, agv["battery"] + 0.6) 
-                        agv["motor_temp"] = max(45.0, agv["motor_temp"] - 0.5) 
+                        agv["battery"] = min(100.0, agv.get("battery", 100) + 0.6) 
+                        agv["motor_temp"] = max(45.0, agv.get("motor_temp", 45) - 0.5) 
+
+                    # Queue logic
+                    elif len(agv.get("path", [])) == 0 and len(agv.get("mission_queue", [])) > 0:
+                        if "wait_ticks" not in agv: agv["wait_ticks"] = 0
+                        if agv["wait_ticks"] > 0:
+                            agv["wait_ticks"] -= 1
+                        else:
+                            leg = agv["mission_queue"].pop(0)
+                            agv["current_leg"] = leg
+                            z = ZONES.get(leg["zone"])
+                            if z:
+                                agv["target_x"], agv["target_y"], agv["target_zone"] = z["x"], z["y"], leg["zone"]
+                                if leg.get("custom_path"):
+                                    agv["path"] = list(leg["custom_path"])
+                                else:
+                                    agv["path"] = calculate_path(agv["x"], agv["y"], agv["target_x"], agv["target_y"])
+                                agv["status"] = "IN TRANSIT"
                     
-                    if len(agv["path"]) > 0:
+                    elif len(agv.get("path", [])) == 0 and agv.get("status") in ["IN TRANSIT", "REROUTING"]:
+                        leg = agv.get("current_leg")
+                        if leg and leg["type"] == "PICKUP":
+                            agv["status"] = "LOADING..."
+                            agv["load_kg"] = leg["load"]
+                            agv["current_leg"] = None
+                            agv["wait_ticks"] = 20 # 1 second delay
+                        elif leg and leg["type"] == "DROP":
+                            agv["status"] = "IDLE"
+                            agv["load_kg"] = 0
+                            agv["current_leg"] = None
+                            agv["target_zone"] = "Idle"
+                        else:
+                            agv["status"] = "IDLE"
+                            agv["target_zone"] = "Idle"
+                    
+                    if len(agv.get("path", [])) > 0:
+                        if SYSTEM_STATE.get("global_estop") or SYSTEM_STATE.get("global_pause") or agv.get("is_stopped"):
+                            continue # FREEZE AGV
+
                         next_wpt = agv["path"][0]
                         dx, dy = next_wpt[0] - agv["x"], next_wpt[1] - agv["y"]
                         dist = math.hypot(dx, dy)
@@ -170,8 +265,19 @@ async def websocket_endpoint(websocket: WebSocket):
                             if i != j and len(other_agv["path"]) > 0: 
                                 if math.hypot(next_x - other_agv["x"], next_y - other_agv["y"]) < 6.0: 
                                     
-                                    # FIX: The Tie-Breaker! If loads are equal, lowest ID yields.
-                                    if agv["load_kg"] < other_agv["load_kg"] or (agv["load_kg"] == other_agv["load_kg"] and agv["id"] > other_agv["id"]):
+                                    # PRIORITY OVERRIDE
+                                    my_pri = 3 if agv.get("priority")=="HIGH" else 2 if agv.get("priority")=="MED" else 1
+                                    other_pri = 3 if other_agv.get("priority")=="HIGH" else 2 if other_agv.get("priority")=="MED" else 1
+                                    
+                                    # Base tie-breaker on load weight and ID
+                                    yielding = False
+                                    if my_pri < other_pri:
+                                        yielding = True
+                                    elif my_pri == other_pri:
+                                        if agv["load_kg"] < other_agv["load_kg"] or (agv["load_kg"] == other_agv["load_kg"] and agv["id"] > other_agv["id"]):
+                                            yielding = True
+
+                                    if yielding:
                                         collision_detected = True
                                         agv["status"] = "REROUTING"
                                         agv["path"] = calculate_path(agv["x"], agv["y"], agv["target_x"], agv["target_y"], extra_obstacles=[other_agv])
@@ -193,16 +299,25 @@ async def websocket_endpoint(websocket: WebSocket):
                                     agv["path"] = calculate_path(agv["x"], agv["y"], agv["target_x"], agv["target_y"])
                                     agv["status"] = "LOW BATT - RETURNING"
                     else:
-                        if agv["status"] != "CHARGING":
+                        if agv.get("status") not in ["CHARGING", "LOADING...", "ASSIGNED"] and not agv.get("mission_queue"):
                             agv["status"] = "IDLE"
-                            agv["motor_temp"] = max(45.0, agv["motor_temp"] - 0.1)
+                            agv["motor_temp"] = max(45.0, agv.get("motor_temp", 45) - 0.1)
                             
                     if agv["motor_temp"] > 90: agv["status"] = "OVERHEATING"
 
-                await websocket.send_text(json.dumps({"fleet": fleet, "obstacles": obstacles, "zones": ZONES}))
+                await websocket.send_text(json.dumps({
+                    "fleet": fleet, 
+                    "obstacles": obstacles, 
+                    "zones": ZONES,
+                    "system": SYSTEM_STATE
+                }))
                 await asyncio.sleep(0.05) 
                 
             except WebSocketDisconnect:
+                break
+            except RuntimeError as e:
+                # E.g. Unexpected ASGI message 'websocket.send', after sending 'websocket.close'
+                print(f"Connection ended via runtime error: {e}")
                 break
             except Exception as e:
                 print(f"Sender Error: {e}")

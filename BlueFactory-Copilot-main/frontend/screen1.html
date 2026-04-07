@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BlueFactory Copilot | AGV Fleet Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0e141a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2f353c;
+            border-radius: 10px;
+        }
+        .glass-panel {
+            background: rgba(37, 43, 49, 0.6);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "secondary": "#bdf4ff",
+                "surface-container-highest": "#2f353c",
+                "primary-fixed-dim": "#adc7ff",
+                "on-secondary-fixed-variant": "#004f58",
+                "on-secondary-container": "#00616d",
+                "on-tertiary-fixed": "#00201f",
+                "error": "#ffb4ab",
+                "on-secondary": "#00363d",
+                "outline-variant": "#414754",
+                "secondary-fixed-dim": "#00daf3",
+                "tertiary-fixed-dim": "#52dad7",
+                "inverse-surface": "#dde3ec",
+                "on-surface": "#dde3ec",
+                "primary": "#adc7ff",
+                "background": "#0e141a",
+                "on-secondary-fixed": "#001f24",
+                "tertiary-container": "#00a1a0",
+                "primary-fixed": "#d8e2ff",
+                "on-surface-variant": "#c1c6d7",
+                "on-primary-fixed": "#001a41",
+                "on-error": "#690005",
+                "surface-container-low": "#161c22",
+                "outline": "#8b90a0",
+                "surface-tint": "#adc7ff",
+                "on-tertiary-container": "#002f2f",
+                "surface-variant": "#2f353c",
+                "tertiary": "#52dad7",
+                "on-tertiary": "#003736",
+                "surface-container": "#1a2027",
+                "error-container": "#93000a",
+                "on-error-container": "#ffdad6",
+                "on-primary-container": "#00285b",
+                "on-primary-fixed-variant": "#004493",
+                "on-primary": "#002e68",
+                "secondary-container": "#00e3fd",
+                "secondary-fixed": "#9cf0ff",
+                "on-tertiary-fixed-variant": "#00504f",
+                "inverse-on-surface": "#2b3138",
+                "surface": "#0e141a",
+                "tertiary-fixed": "#73f6f4",
+                "inverse-primary": "#005bc0",
+                "surface-bright": "#343a41",
+                "surface-dim": "#0e141a",
+                "surface-container-high": "#252b31",
+                "surface-container-lowest": "#090f15",
+                "on-background": "#dde3ec",
+                "primary-container": "#4a8eff"
+              },
+              fontFamily: {
+                "headline": ["Space Grotesk"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary/30 selection:text-primary min-h-screen flex flex-col overflow-hidden">
+<!-- TopNavBar -->
+<header class="bg-[#0e141a] dark:bg-[#0e141a] docked full-width top-0 z-50 bg-[#1a2128] dark:bg-[#1a2128] mb-4 flat no shadows flex justify-between items-center w-full px-6 h-16 border-b border-outline-variant/20">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold tracking-tighter text-[#adc7ff] italic font-headline">BlueFactory Copilot</span>
+<div class="hidden md:flex items-center gap-6 ml-8">
+<a class="text-[#adc7ff] font-bold border-b-2 border-[#adc7ff] font-['Space_Grotesk'] text-sm tracking-tight transition-colors duration-200" href="#">Dashboard</a>
+<a class="text-[#c1c6d7] opacity-70 hover:bg-[#1a2128] transition-colors duration-200 font-['Space_Grotesk'] text-sm tracking-tight" href="#">Fleet Analytics</a>
+<a class="text-[#c1c6d7] opacity-70 hover:bg-[#1a2128] transition-colors duration-200 font-['Space_Grotesk'] text-sm tracking-tight" href="#">System Logs</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+<input class="bg-surface-container-low border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-1 focus:ring-primary w-64" placeholder="Search AGV ID..." type="text"/>
+</div>
+<button class="text-[#c1c6d7] opacity-70 hover:bg-[#1a2128] p-2 rounded-full transition-all duration-100 active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-[#c1c6d7] opacity-70 hover:bg-[#1a2128] p-2 rounded-full transition-all duration-100 active:scale-95">
+<span class="material-symbols-outlined">emergency</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-primary/30">
+<img alt="User avatar" data-alt="Close up portrait of a professional engineer in dark studio lighting with soft cyan rim light highlighting profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC02c8ghdCkYh_USUdhilXU8MKrJH48lExPNvQvf1-34wmGbJZLqY0QOhOdDJ7gOFVbvYLh9lGe-IerKFA4A3Sz6C6sK7IYjqKSvudiTu96KDidVxPIbxN9tqDOLmDl2Js5CNhSkHRZl-ecODXrqbItt55vB0XEr1BiI5t4YqQZJ-z8qkiULgtMLCJvyOnHaD0QjYsrUZGJzwH7ETblNylCAHr5io0LbS4tRtalEjHClOS6wIyrfoP2o5skXzhhVfCPCA18ImkDEsHy"/>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="hidden lg:flex flex-col gap-y-2 p-4 h-full docked left-0 h-screen w-64 rounded-r-lg bg-[#0e141a] dark:bg-[#0e141a] shadow-2xl dark:shadow-none border-r border-outline-variant/10">
+<div class="mb-6 px-2">
+<h2 class="font-headline font-bold text-lg text-primary leading-tight">Fleet Control</h2>
+<div class="flex items-center gap-2 mt-1">
+<span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_rgba(82,218,215,0.6)]"></span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-[#c1c6d7]/60">System Ready</span>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<div class="bg-gradient-to-r from-[#adc7ff] to-[#4a8eff] text-[#0e141a] rounded-lg shadow-[0_0_15px_rgba(173,199,255,0.3)] cursor-pointer active:scale-95 flex items-center gap-3 p-3 transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Space_Grotesk'] font-medium text-xs uppercase tracking-widest">Dashboard</span>
+</div>
+<div class="text-[#c1c6d7] hover:bg-[#1a2128] rounded-lg cursor-pointer active:scale-95 hover:translate-x-1 flex items-center gap-3 p-3 transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-['Space_Grotesk'] font-medium text-xs uppercase tracking-widest">Map</span>
+</div>
+<div class="text-[#c1c6d7] hover:bg-[#1a2128] rounded-lg cursor-pointer active:scale-95 hover:translate-x-1 flex items-center gap-3 p-3 transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+<span class="font-['Space_Grotesk'] font-medium text-xs uppercase tracking-widest">Missions</span>
+</div>
+<div class="text-[#c1c6d7] hover:bg-[#1a2128] rounded-lg cursor-pointer active:scale-95 hover:translate-x-1 flex items-center gap-3 p-3 transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="precision_manufacturing">precision_manufacturing</span>
+<span class="font-['Space_Grotesk'] font-medium text-xs uppercase tracking-widest">AGV Manager</span>
+</div>
+<div class="text-[#c1c6d7] hover:bg-[#1a2128] rounded-lg cursor-pointer active:scale-95 hover:translate-x-1 flex items-center gap-3 p-3 transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="view_in_ar">view_in_ar</span>
+<span class="font-['Space_Grotesk'] font-medium text-xs uppercase tracking-widest">Digital Twin</span>
+</div>
+<div class="text-[#c1c6d7] hover:bg-[#1a2128] rounded-lg cursor-pointer active:scale-95 hover:translate-x-1 flex items-center gap-3 p-3 transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+<span class="font-['Space_Grotesk'] font-medium text-xs uppercase tracking-widest">Swarm</span>
+</div>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant/10">
+<button class="w-full bg-error-container text-on-error-container font-headline font-bold py-3 rounded-lg flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-error/10">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">emergency_home</span>
+                    Emergency Stop
+                </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 p-6 overflow-y-auto bg-surface space-y-6 pb-20">
+<!-- Top Summary Cards (Asymmetric Bento Grid) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="bg-surface-container-low p-5 rounded-xl border-l-4 border-primary group hover:bg-surface-container transition-all duration-300">
+<div class="flex justify-between items-start">
+<span class="text-on-surface-variant font-label text-[10px] uppercase tracking-widest">Total AGVs</span>
+<span class="material-symbols-outlined text-primary-fixed-dim text-xl">smart_toy</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="text-3xl font-headline font-bold">14</span>
+<span class="text-tertiary text-xs font-medium">Stable</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl border-l-4 border-tertiary group hover:bg-surface-container transition-all duration-300">
+<div class="flex justify-between items-start">
+<span class="text-on-surface-variant font-label text-[10px] uppercase tracking-widest">Active Missions</span>
+<span class="material-symbols-outlined text-tertiary text-xl">rocket_launch</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="text-3xl font-headline font-bold">08</span>
+<span class="text-tertiary text-xs font-medium">↑ 12%</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-xl border-l-4 border-outline group hover:bg-surface-container transition-all duration-300">
+<div class="flex justify-between items-start">
+<span class="text-on-surface-variant font-label text-[10px] uppercase tracking-widest">Idle Vehicles</span>
+<span class="material-symbols-outlined text-outline text-xl">pause_circle</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="text-3xl font-headline font-bold">04</span>
+<span class="text-on-surface-variant text-xs font-medium">Ready</span>
+</div>
+</div>
+<div class="bg-error-container/10 border-l-4 border-error p-5 rounded-xl group hover:bg-error-container/20 transition-all duration-300">
+<div class="flex justify-between items-start">
+<span class="text-error font-label text-[10px] uppercase tracking-widest font-bold">Critical Alerts</span>
+<span class="material-symbols-outlined text-error text-xl" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="text-3xl font-headline font-bold text-error">02</span>
+<span class="text-error text-xs font-medium animate-pulse">ACTION REQ.</span>
+</div>
+</div>
+</div>
+<!-- Center Content: Map & Alerts -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+<!-- Map Preview (2/3) -->
+<div class="xl:col-span-2 space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="font-headline font-bold text-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">location_on</span>
+                            Real-time Factory Grid
+                        </h3>
+<div class="flex gap-2">
+<button class="bg-surface-container-high px-4 py-1.5 rounded-lg text-xs font-label uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors">
+                                Layer: Heatmap
+                            </button>
+<button class="bg-surface-container-high px-4 py-1.5 rounded-lg text-xs font-label uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors">
+                                View Full Map
+                            </button>
+</div>
+</div>
+<div class="relative h-[450px] rounded-2xl overflow-hidden bg-surface-container-lowest border border-outline-variant/10 group">
+<!-- Abstract Map Visual -->
+<div class="absolute inset-0 opacity-40 mix-blend-overlay">
+<img alt="Factory blueprint" class="w-full h-full object-cover filter grayscale" data-alt="Blueprint of a high-tech factory floor layout with glowing blue circuit lines and geometric workstation zones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7G8lgXqgi0Xqr5C2RkviS9j_0CuZrfhysbfmt3uF6wEMDau-PCIzGvL-IP7vvygrfXvIuWvS11r1OyOdI1u0Gzc4evRXxWD6O29aqtcGI_yk-Z9RTAlISzs9o_miCb-OaGdutnDIh8M1_2o1K_9IZscRQ9n3bywcA2IxNvVSjJXZrNKHRMR8JEMRYRuevynT0OcWi8psm5vPMlKkwvPXjnCAz99_mA26oyTxBh-eEX1kZ2L7FLQPa7B66YJqsYAEqP8BPaCvV5E2Z"/>
+</div>
+<!-- UI Overlays for AGVs -->
+<div class="absolute inset-0 p-8 flex flex-col pointer-events-none">
+<!-- SVG Grid & Paths Simulated -->
+<svg class="absolute inset-0 w-full h-full" viewbox="0 0 800 450">
+<path d="M100 100 L400 100 L400 300 L600 300" fill="none" opacity="0.6" stroke="#4a8eff" stroke-dasharray="8 4" stroke-width="2"></path>
+<circle class="animate-pulse" cx="600" cy="300" fill="#adc7ff" r="8"></circle>
+<path d="M700 50 L700 200 L500 200" fill="none" opacity="0.4" stroke="#52dad7" stroke-dasharray="8 4" stroke-width="2"></path>
+<circle cx="500" cy="200" fill="#52dad7" r="8"></circle>
+</svg>
+<!-- AGV ID Labels -->
+<div class="absolute top-[280px] left-[580px] bg-primary text-on-primary-container px-2 py-0.5 rounded text-[10px] font-bold font-headline pointer-events-auto cursor-pointer">AGV-008</div>
+<div class="absolute top-[180px] left-[480px] bg-tertiary text-on-tertiary-container px-2 py-0.5 rounded text-[10px] font-bold font-headline pointer-events-auto cursor-pointer">AGV-012</div>
+<div class="absolute top-[50px] left-[680px] bg-error text-on-error px-2 py-0.5 rounded text-[10px] font-bold font-headline pointer-events-auto cursor-pointer">AGV-004</div>
+</div>
+<!-- Map Controls -->
+<div class="absolute bottom-4 right-4 flex flex-col gap-2">
+<button class="bg-surface-container-high/80 backdrop-blur-md p-2 rounded-lg text-primary hover:bg-primary hover:text-on-primary transition-all">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="bg-surface-container-high/80 backdrop-blur-md p-2 rounded-lg text-primary hover:bg-primary hover:text-on-primary transition-all">
+<span class="material-symbols-outlined">remove</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Panel: Alerts Feed (1/3) -->
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="font-headline font-bold text-lg">Alerts Feed</h3>
+<span class="bg-error/20 text-error px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tighter">Live</span>
+</div>
+<div class="bg-surface-container-low rounded-2xl overflow-hidden border border-outline-variant/5">
+<div class="p-1 space-y-1">
+<!-- Alert Item -->
+<div class="p-4 bg-error-container/20 rounded-xl flex gap-4 items-start border-l-4 border-error">
+<div class="w-10 h-10 rounded-lg bg-error/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-error">noise_aware</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="font-headline font-bold text-sm text-error">Collision Risk</h4>
+<span class="text-[9px] text-on-surface-variant font-medium">JUST NOW</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-1 leading-relaxed">AGV-011 and manual forklift nearing proximity in Zone B-4.</p>
+<button class="mt-2 text-[10px] font-bold uppercase tracking-widest text-primary hover:underline">Remote Intervene</button>
+</div>
+</div>
+<!-- Alert Item -->
+<div class="p-4 hover:bg-surface-container-high transition-colors rounded-xl flex gap-4 items-start border-l-4 border-error/50">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-error">thermostat</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="font-headline font-bold text-sm">Overheating</h4>
+<span class="text-[9px] text-on-surface-variant font-medium">2 MIN AGO</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-1">ID-004 motor temperature at 85°C. Performance throttled to 40%.</p>
+</div>
+</div>
+<!-- Alert Item -->
+<div class="p-4 hover:bg-surface-container-high transition-colors rounded-xl flex gap-4 items-start border-l-4 border-primary">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">battery_2_bar</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="font-headline font-bold text-sm">Low Battery</h4>
+<span class="text-[9px] text-on-surface-variant font-medium">12 MIN AGO</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-1">ID-009 battery at 12%. Re-routing to Charging Station Alpha.</p>
+</div>
+</div>
+<!-- Alert Item -->
+<div class="p-4 hover:bg-surface-container-high transition-colors rounded-xl flex gap-4 items-start opacity-60">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary">task_alt</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="font-headline font-bold text-sm">Mission Completed</h4>
+<span class="text-[9px] text-on-surface-variant font-medium">45 MIN AGO</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-1">AGV-002 successfully delivered payload to Dock 7.</p>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary-fixed-dim text-on-primary-fixed py-2 rounded-lg font-label text-[10px] uppercase tracking-[0.2em] font-bold hover:brightness-110 transition-all">
+                        Create New Mission
+                    </button>
+</div>
+</div>
+<!-- Bottom Section: Telemetry Charts -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Torque -->
+<div class="bg-surface-container-low p-5 rounded-2xl border border-outline-variant/10">
+<div class="flex justify-between items-center mb-4">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Fleet Avg Torque (Nm)</span>
+<span class="text-primary font-headline font-bold">42.8</span>
+</div>
+<div class="h-16 flex items-end gap-[2px]">
+<div class="bg-primary-container/30 w-full h-8 rounded-sm"></div>
+<div class="bg-primary-container/30 w-full h-12 rounded-sm"></div>
+<div class="bg-primary-container/30 w-full h-10 rounded-sm"></div>
+<div class="bg-primary-container/30 w-full h-14 rounded-sm"></div>
+<div class="bg-primary-container/30 w-full h-16 rounded-sm"></div>
+<div class="bg-primary w-full h-12 rounded-sm"></div>
+<div class="bg-primary w-full h-10 rounded-sm"></div>
+<div class="bg-primary w-full h-14 rounded-sm"></div>
+<div class="bg-primary w-full h-15 rounded-sm"></div>
+<div class="bg-primary-container/30 w-full h-9 rounded-sm"></div>
+<div class="bg-primary-container/30 w-full h-11 rounded-sm"></div>
+</div>
+</div>
+<!-- Temperature -->
+<div class="bg-surface-container-low p-5 rounded-2xl border border-outline-variant/10">
+<div class="flex justify-between items-center mb-4">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">System Temperature (°C)</span>
+<span class="text-tertiary font-headline font-bold">34.2</span>
+</div>
+<div class="h-16 flex items-end gap-[2px]">
+<div class="bg-tertiary-container/20 w-full h-6 rounded-sm"></div>
+<div class="bg-tertiary-container/20 w-full h-7 rounded-sm"></div>
+<div class="bg-tertiary-container/20 w-full h-8 rounded-sm"></div>
+<div class="bg-tertiary w-full h-8 rounded-sm shadow-[0_0_8px_rgba(82,218,215,0.3)]"></div>
+<div class="bg-tertiary w-full h-9 rounded-sm shadow-[0_0_8px_rgba(82,218,215,0.3)]"></div>
+<div class="bg-tertiary-container/20 w-full h-8 rounded-sm"></div>
+<div class="bg-tertiary-container/20 w-full h-7 rounded-sm"></div>
+<div class="bg-tertiary-container/20 w-full h-7 rounded-sm"></div>
+<div class="bg-tertiary-container/20 w-full h-8 rounded-sm"></div>
+<div class="bg-tertiary-container/20 w-full h-9 rounded-sm"></div>
+<div class="bg-tertiary-container/20 w-full h-9 rounded-sm"></div>
+</div>
+</div>
+<!-- Battery -->
+<div class="bg-surface-container-low p-5 rounded-2xl border border-outline-variant/10">
+<div class="flex justify-between items-center mb-4">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">Fleet Efficiency (%)</span>
+<span class="text-secondary-fixed-dim font-headline font-bold">94.1</span>
+</div>
+<div class="h-16 flex items-end gap-[2px]">
+<div class="bg-secondary/10 w-full h-14 rounded-sm"></div>
+<div class="bg-secondary/10 w-full h-15 rounded-sm"></div>
+<div class="bg-secondary/10 w-full h-16 rounded-sm"></div>
+<div class="bg-secondary/10 w-full h-15 rounded-sm"></div>
+<div class="bg-secondary/10 w-full h-14 rounded-sm"></div>
+<div class="bg-secondary w-full h-15 rounded-sm"></div>
+<div class="bg-secondary w-full h-16 rounded-sm shadow-[0_0_8px_rgba(0,218,243,0.3)]"></div>
+<div class="bg-secondary w-full h-16 rounded-sm shadow-[0_0_8px_rgba(0,218,243,0.3)]"></div>
+<div class="bg-secondary w-full h-15 rounded-sm"></div>
+<div class="bg-secondary/10 w-full h-14 rounded-sm"></div>
+<div class="bg-secondary/10 w-full h-15 rounded-sm"></div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-[#0a0f14] dark:bg-[#0a0f14] fixed bottom-0 w-full z-40 border-t border-[#c1c6d7]/10 flex items-center justify-between px-8 py-2 w-full tonal-shift">
+<div class="flex items-center gap-6">
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest text-[#c1c6d7]/50">System Online | AGV Connectivity: 100% | Last Sync: Just Now</span>
+</div>
+<div class="flex gap-4">
+<a class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest text-[#c1c6d7]/50 hover:text-[#52dad7] transition-all duration-200" href="#">Diagnostics</a>
+<a class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest text-[#c1c6d7]/50 hover:text-[#52dad7] transition-all duration-200" href="#">Support</a>
+<a class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest text-[#c1c6d7]/50 hover:text-[#52dad7] transition-all duration-200" href="#">API</a>
+</div>
+</footer>
+</body></html>

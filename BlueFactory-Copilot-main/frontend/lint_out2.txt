@@ -1,0 +1,149 @@
+﻿
+> frontend@0.0.0 lint
+> eslint .
+
+
+C:\Users\hyagr\OneDrive\Documents\hyagreevan stitch edited bonfiglioli\BlueFactory-Copilot-main\BlueFactory-Copilot-main\frontend\src\components\Layout.jsx
+  31:15  error  Empty block statement  no-empty
+
+C:\Users\hyagr\OneDrive\Documents\hyagreevan stitch edited bonfiglioli\BlueFactory-Copilot-main\BlueFactory-Copilot-main\frontend\src\pages\AgvFleetDashboard.jsx
+  23:21  error  Empty block statement  no-empty
+
+C:\Users\hyagr\OneDrive\Documents\hyagreevan stitch edited bonfiglioli\BlueFactory-Copilot-main\BlueFactory-Copilot-main\frontend\src\pages\AgvFleetManager.jsx
+  404:110  error  Empty block statement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         no-empty
+  430:9    error  'cancelClose' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   no-unused-vars
+  436:50   error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+  434 |
+  435 |       {/* Edit & Add Modals */}
+> 436 |       {editAgv && <AddAgvModal zones={zones} ws={wsRef.current} onClose={()=>setEditAgv(null)} totalFleet={fleet.length} editMode={editAgv} />}
+      |                                                  ^^^^^^^^^^^^^ Cannot access ref value during render
+  437 |       {/* Add AGV Modal */}
+  438 |       {showModal && <AddAgvModal zones={zones} ws={wsRef.current} onClose={()=>setModal(false)} totalFleet={fleet.length} />}
+  439 |                   react-hooks/refs
+  438:52   error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+  436 |       {editAgv && <AddAgvModal zones={zones} ws={wsRef.current} onClose={()=>setEditAgv(null)} totalFleet={fleet.length} editMode={editAgv} />}
+  437 |       {/* Add AGV Modal */}
+> 438 |       {showModal && <AddAgvModal zones={zones} ws={wsRef.current} onClose={()=>setModal(false)} totalFleet={fleet.length} />}
+      |                                                    ^^^^^^^^^^^^^ Cannot access ref value during render
+  439 |
+  440 |       {/* Floating panel */}
+  441 |       {panel && (  react-hooks/refs
+  442:53   error  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+  440 |       {/* Floating panel */}
+  441 |       {panel && (
+> 442 |         <AgvPanel agv={panel.agv} zones={zones} ws={wsRef.current} anchor={panel.anchor}
+      |                                                     ^^^^^^^^^^^^^ Cannot access ref value during render
+  443 |           onClose={()=>setPanel(null)} />
+  444 |       )}
+  445 |                                                                                                                                                               react-hooks/refs
+
+C:\Users\hyagr\OneDrive\Documents\hyagreevan stitch edited bonfiglioli\BlueFactory-Copilot-main\BlueFactory-Copilot-main\frontend\src\pages\DigitalTwinSimulation.jsx
+   4:12  error  'fleet' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  14:21  error  Empty block statement                                                                  no-empty
+
+C:\Users\hyagr\OneDrive\Documents\hyagreevan stitch edited bonfiglioli\BlueFactory-Copilot-main\BlueFactory-Copilot-main\frontend\src\pages\MapPage.jsx
+   11:9   error  'mapRef' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   no-unused-vars
+   28:15  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  26 |   useEffect(() => {
+  27 |     const hist = localStorage.getItem('bluefactory_map_history');
+> 28 |     if (hist) setMapHistory(JSON.parse(hist));
+     |               ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  29 |
+  30 |     const ws = new WebSocket('ws://127.0.0.1:8000/ws');
+  31 |     wsRef.current = ws;  react-hooks/set-state-in-effect
+   41:15  error  Empty block statement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    no-empty
+  151:16  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          no-unused-vars
+  171:9   error  'statusColors' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             no-unused-vars
+
+C:\Users\hyagr\OneDrive\Documents\hyagreevan stitch edited bonfiglioli\BlueFactory-Copilot-main\BlueFactory-Copilot-main\frontend\src\pages\MissionManagement.jsx
+   48:20  error  Empty block statement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       no-empty
+   56:17  error  'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               no-unused-vars
+   56:20  error  Empty block statement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       no-empty
+  151:46  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  149 |     const density = fleet.length ? (activeCount / fleet.length) * 100 : 0;
+  150 |     const barHeights = [
+> 151 |         Math.min(100, Math.max(10, density + Math.random()*20)),
+      |                                              ^^^^^^^^^^^^^ Cannot call impure function
+  152 |         Math.min(100, Math.max(15, density + Math.random()*15)),
+  153 |         Math.min(100, Math.max(30, density + 30)),
+  154 |         Math.min(100, Math.max(20, density + Math.random()*30)),  react-hooks/purity
+  152:46  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  150 |     const barHeights = [
+  151 |         Math.min(100, Math.max(10, density + Math.random()*20)),
+> 152 |         Math.min(100, Math.max(15, density + Math.random()*15)),
+      |                                              ^^^^^^^^^^^^^ Cannot call impure function
+  153 |         Math.min(100, Math.max(30, density + 30)),
+  154 |         Math.min(100, Math.max(20, density + Math.random()*30)),
+  155 |         Math.min(100, Math.max(10, density + Math.random()*10)),            react-hooks/purity
+  154:46  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  152 |         Math.min(100, Math.max(15, density + Math.random()*15)),
+  153 |         Math.min(100, Math.max(30, density + 30)),
+> 154 |         Math.min(100, Math.max(20, density + Math.random()*30)),
+      |                                              ^^^^^^^^^^^^^ Cannot call impure function
+  155 |         Math.min(100, Math.max(10, density + Math.random()*10)),
+  156 |         Math.min(100, Math.max(5, density)),
+  157 |         Math.min(100, Math.max(2, density * 0.5))       react-hooks/purity
+  155:46  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+  153 |         Math.min(100, Math.max(30, density + 30)),
+  154 |         Math.min(100, Math.max(20, density + Math.random()*30)),
+> 155 |         Math.min(100, Math.max(10, density + Math.random()*10)),
+      |                                              ^^^^^^^^^^^^^ Cannot call impure function
+  156 |         Math.min(100, Math.max(5, density)),
+  157 |         Math.min(100, Math.max(2, density * 0.5))
+  158 |     ];                                                                 react-hooks/purity
+
+C:\Users\hyagr\OneDrive\Documents\hyagreevan stitch edited bonfiglioli\BlueFactory-Copilot-main\BlueFactory-Copilot-main\frontend\src\pages\PredictiveMaintenance.jsx
+  12:21  error  Empty block statement          no-empty
+  45:18  error  'i' is defined but never used  no-unused-vars
+
+C:\Users\hyagr\OneDrive\Documents\hyagreevan stitch edited bonfiglioli\BlueFactory-Copilot-main\BlueFactory-Copilot-main\frontend\src\pages\SafetySettings.jsx
+  11:26  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+   9 |         // Read local storage target assigned from map or fleet manager
+  10 |         const localActive = localStorage.getItem('bluefactory_selected_agv');
+> 11 |         if (localActive) setSelectedAgv(localActive);
+     |                          ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  12 |
+  13 |         const ws = new WebSocket('ws://127.0.0.1:8000/ws');
+  14 |         wsRef.current = ws;  react-hooks/set-state-in-effect
+  19:21  error  Empty block statement                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               no-empty
+
+C:\Users\hyagr\OneDrive\Documents\hyagreevan stitch edited bonfiglioli\BlueFactory-Copilot-main\BlueFactory-Copilot-main\frontend\src\pages\SwarmCoordination.jsx
+  14:21  error  Empty block statement  no-empty
+
+Γ£û 26 problems (26 errors, 0 warnings)
+
